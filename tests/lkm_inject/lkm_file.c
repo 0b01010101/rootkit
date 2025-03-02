@@ -6,11 +6,11 @@
 ssize_t lkm_file_write(struct file *f, const void *ptr, size_t len, loff_t *offs); 
 ssize_t lkm_file_read(struct file *f, void *ptr, size_t len, loff_t *offs); 
 struct file *lkm_file_open(const char *name); 
-int lkm_file_rm(char *name);
 int lkm_file_close(struct file *f);
+static int lkm_file_rm(char *name);
 int lkm_file_stat(const char *name, struct kstat *stat); 
 
-int lkm_file_rm(char *name) {
+static int lkm_file_rm(char *name) {
 
 	int ret = -1;
 	struct subprocess_info *info;
@@ -67,6 +67,7 @@ ssize_t lkm_file_write(struct file *f, const void *ptr, size_t len, loff_t *offs
 	else { off = offs; }
 
 	ssize_t a = kernel_write(f, ptr, len, off);
+	//printk(KERN_INFO "FILE_WRITE=%d | need_len=%d\n", a, len);
 	if(a!=len) return -1;
 	return a;
 }
@@ -76,8 +77,8 @@ struct file *lkm_file_open(const char *name) {
 	struct file *f;
 	if(!name) return NULL;
 
-    	//f = filp_open(name, O_RDWR|O_LARGEFILE, 0600);
-    	f = filp_open(name, O_CREAT|O_RDWR|O_APPEND|O_LARGEFILE, 0666);
+    	f = filp_open(name, O_RDWR|O_LARGEFILE, 0600);
+    	//f = filp_open(name, O_RDWR|O_APPEND|O_CREAT, 0600);
 	if(IS_ERR(f)) return NULL;
 
 	return f;
